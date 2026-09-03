@@ -149,7 +149,7 @@ def main() -> None:
         tensor_to_image(env.current_obs[0, :, 0, frame_index]).save(path)
         condition_paths.append(str(path.relative_to(args.output)).replace("\\", "/"))
 
-    policy, processor = load_policy(args.policy_path)
+    model, processor = load_policy(args.policy_path)
     chunk_reports = []
     all_raw_rewards: list[float] = []
     first_actions: list[list[float]] = []
