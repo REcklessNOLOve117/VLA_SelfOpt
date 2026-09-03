@@ -52,6 +52,12 @@ The file is JSON-compatible YAML and intentionally contains no absolute host pat
 6. Convert the last complete checkpoint with `export_checkpoint.sh`, then evaluate the merged FT checkpoint using the exact same manifest.
 7. Merge Base and FT shards, run `aggregate_results.py`, and copy the generated bundle and media into the static result site's `public/results` directory.
 
+If the binary RM remains constant, run `probe_rm_libero_success.py` first. It
+searches the fixed task/state/seed order for a simulator-confirmed `done=True`,
+then scores its final frame window and the initial negative frame with the exact
+Wan RM preprocessing. Use `select_kir_canary_records.py` to create the deterministic
+one-record-per-task manifest for the separate stratified imagined-rollout check.
+
 The direct evaluator writes each completed episode durably and supports disjoint shards.
 Infrastructure exceptions are retried twice and then abort the evaluation without writing a
 fake failure. Policy timeouts and invalid/non-finite policy actions are recorded as failures.
