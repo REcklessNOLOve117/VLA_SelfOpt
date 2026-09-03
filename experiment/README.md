@@ -12,6 +12,12 @@ does not use the existing dirty checkout as a training source.
 - Evaluate: 10 LIBERO-Spatial tasks × 50 canonical states × seeds 1234/1235/1236, exactly 1,500 episodes per model.
 - Success: the lower endpoint of the paired, task-stratified cluster-bootstrap 95% interval for `FT - Base` is above zero.
 
+Training rollout provenance is fixed: an official local initialization/KIR record
+provides the five conditioning frames, the current policy produces each 8×7 action
+chunk, frozen Wan imagines the next eight frames, and the frozen local ResNet RM scores
+those frames. The compute node neither serves nor calls the GitHub Pages site; Pages
+only displays result artifacts exported after the run.
+
 Generate the immutable evaluation protocol once:
 
 ```bash

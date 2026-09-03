@@ -4,6 +4,12 @@ This repository contains the static, data-driven result page and the reproducibl
 LIBERO-Spatial experiment harness in `experiment/`. There is no inference API and
 no live GPU dependency in the published site.
 
+GRPO rollouts are generated online inside the frozen action-conditioned Wan world
+model. Resets come from the official Wan bundle's local `dataset/` records (including
+KIR context); actions come from the current OpenVLA-OFT policy; rewards come from the
+local frozen `resnet_rm.pth`. GitHub Pages is only a static consumer of exported result
+files and is never part of training, evaluation, or server control.
+
 The page reads these files from `public/results`:
 
 - `summary.json` — Base/FT aggregate and per-task success rates.
