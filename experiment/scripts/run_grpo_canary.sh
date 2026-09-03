@@ -24,7 +24,7 @@ python "${RLINF_ROOT}/examples/embodiment/train_embodied_agent.py" \
   cluster.num_nodes=1 runner.max_steps=1 runner.save_interval=1 \
   env.train.rollout_epoch=1 env.train.total_num_envs=8 \
   env.train.max_episode_steps=24 env.train.max_steps_per_rollout_epoch=24 \
-  actor.micro_batch_size=8 actor.global_batch_size=256 \
+  actor.micro_batch_size=8 actor.global_batch_size=24 \
   2>&1 | tee "${POC_RUN_DIR}/first-update.log"
 
 FIRST_CHECKPOINT="$(find "${POC_RUN_DIR}" -type d -name global_step_1 | head -n 1)"
@@ -36,7 +36,7 @@ python "${RLINF_ROOT}/examples/embodiment/train_embodied_agent.py" \
   runner.resume_dir="${FIRST_CHECKPOINT}" \
   env.train.rollout_epoch=1 env.train.total_num_envs=8 \
   env.train.max_episode_steps=24 env.train.max_steps_per_rollout_epoch=24 \
-  actor.micro_batch_size=8 actor.global_batch_size=256 \
+  actor.micro_batch_size=8 actor.global_batch_size=24 \
   2>&1 | tee "${POC_RUN_DIR}/resume-update.log"
 
 python "${POC_PROJECT_ROOT}/scripts/hash_artifacts.py" \
