@@ -37,6 +37,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--seed", type=int, default=1234)
     parser.add_argument("--chunks", type=int, default=3)
     parser.add_argument("--group-size", type=int, default=8)
+    parser.add_argument(
+        "--record-name",
+        help="Use one exact initialization .npy basename for every member of the GRPO group.",
+    )
     return parser.parse_args()
 
 
@@ -134,7 +138,19 @@ def main() -> None:
 
     env.reset(episode_indices=np.full(args.group_size, normal_indices[0]))
     normal_context_l1 = context_motion(env.current_obs)
-    env.reset(episode_indices=np.full(args.group_size, kir_indices[0]))
+    if args.record_name:
+        matching_indices = [
+            index for index, path in enumerate(dataset_paths) if Path(path).name == args.record_name
+        ]
+        if len(matching_indices) != 1:
+            raise RuntimeError(
+                f"Expected exactly one dataset record named {args.record_name!r}; found {len(matching_indices)}"
+            )
+        selected_index = matching_indices[0]
+    else:
+        selected_index = kir_indices[0]
+    selected_record = Path(dataset_paths[selected_index]).name
+    env.reset(episode_indices=np.full(args.group_size, selected_index))
     kir_context_l1 = context_motion(env.current_obs)
     if kir_context_l1 <= 1e-4:
         raise RuntimeError(f"KIR context frames do not differ from the reference frame: l1={kir_context_l1}")
@@ -152,6 +168,7 @@ def main() -> None:
     model, processor = load_policy(args.policy_path)
     chunk_reports = []
     all_raw_rewards: list[float] = []
+    group_returns = np.zeros(args.group_size, dtype=np.float64)
     first_actions: list[list[float]] = []
     generated_paths = []
     instruction = str(env.task_descriptions[0])
@@ -170,6 +187,7 @@ def main() -> None:
         temporal_l1 = float(torch.mean(torch.abs(generated[:, :, 1:] - generated[:, :, :-1])).cpu())
         pixel_std = float(generated.std().cpu())
         all_raw_rewards.extend(raw_rewards.detach().cpu().reshape(-1).tolist())
+        group_returns += raw_rewards.detach().cpu().numpy().sum(axis=1)
         if chunk_index == 0:
             for frame_index in range(8):
                 path = generated_dir / f"frame-{frame_index:02d}.png"
@@ -186,6 +204,7 @@ def main() -> None:
                 "raw_rewards": raw_rewards.detach().cpu().tolist(),
                 "shaped_rewards": shaped_rewards.detach().cpu().tolist(),
                 "group_return_variance": float(raw_rewards.sum(dim=1).var(unbiased=False).cpu()),
+                "cumulative_group_return_variance": float(np.var(group_returns)),
                 "success_once": bool(infos[0]["episode"]["success_once"].any().item()),
                 "terminated": bool(terminations.any().item()),
                 "truncated": bool(truncations.any().item()),
@@ -198,6 +217,7 @@ def main() -> None:
         "status": "ok",
         "seed": args.seed,
         "episode_key": "task-00__state-00__seed-1234",
+        "initialization_record": selected_record,
         "instruction": instruction,
         "conditions": {
             "condition_frame_length": 5,
@@ -219,7 +239,7 @@ def main() -> None:
     failures = []
     if reward_std <= 1e-4:
         failures.append(f"reward_std={reward_std} must be > 1e-4")
-    if not any(chunk["group_return_variance"] > 0 for chunk in chunk_reports):
+    if float(np.var(group_returns)) <= 0:
         failures.append("no 8-sample group has non-zero return variance")
     if failures:
         raise RuntimeError("Wan/OpenVLA canary failed: " + "; ".join(failures))
