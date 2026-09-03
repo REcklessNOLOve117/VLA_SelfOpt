@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "status": "awaiting_data",
+  "protocol": {
+    "suite": "LIBERO-Spatial",
+    "tasks": 10,
+    "states_per_task": 50,
+    "sampling_seeds": [1234, 1235, 1236],
+    "episodes_per_model": 1500,
+    "sampling": {"do_sample": true, "temperature": 1.6, "top_p": 1.0, "top_k": -1},
+    "action_chunk": 8,
+    "max_action_steps": 512
+  },
+  "overall": {
+    "base_sr": null,
+    "ft_sr": null,
+    "delta": null,
+    "paired_cluster_bootstrap_95": null,
+    "bootstrap_samples": 10000,
+    "bootstrap_seed": 20260903,
+    "performance_gate": "pending"
+  },
+  "tasks": [
+    {"task_id": 0, "task_name": "Task 1", "trials": 150, "base_successes": null, "base_sr": null, "ft_successes": null, "ft_sr": null, "delta": null},
+    {"task_id": 1, "task_name": "Task 2", "trials": 150, "base_successes": null, "base_sr": null, "ft_successes": null, "ft_sr": null, "delta": null},
+    {"task_id": 2, "task_name": "Task 3", "trials": 150, "base_successes": null, "base_sr": null, "ft_successes": null, "ft_sr": null, "delta": null},
+    {"task_id": 3, "task_name": "Task 4", "trials": 150, "base_successes": null, "base_sr": null, "ft_successes": null, "ft_sr": null, "delta": null},
+    {"task_id": 4, "task_name": "Task 5", "trials": 150, "base_successes": null, "base_sr": null, "ft_successes": null, "ft_sr": null, "delta": null},
+    {"task_id": 5, "task_name": "Task 6", "trials": 150, "base_successes": null, "base_sr": null, "ft_successes": null, "ft_sr": null, "delta": null},
+    {"task_id": 6, "task_name": "Task 7", "trials": 150, "base_successes": null, "base_sr": null, "ft_successes": null, "ft_sr": null, "delta": null},
+    {"task_id": 7, "task_name": "Task 8", "trials": 150, "base_successes": null, "base_sr": null, "ft_successes": null, "ft_sr": null, "delta": null},
+    {"task_id": 8, "task_name": "Task 9", "trials": 150, "base_successes": null, "base_sr": null, "ft_successes": null, "ft_sr": null, "delta": null},
+    {"task_id": 9, "task_name": "Task 10", "trials": 150, "base_successes": null, "base_sr": null, "ft_successes": null, "ft_sr": null, "delta": null}
+  ],
+  "seed_breakdown": []
+}

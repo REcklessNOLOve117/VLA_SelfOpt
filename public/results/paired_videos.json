@@ -1,0 +1,328 @@
+{
+  "hero_episode_key": null,
+  "pairs": [
+    {
+      "annotation_note": null,
+      "base": {
+        "success": null,
+        "video_path": null
+      },
+      "behavior_label": null,
+      "episode_key": "task-00__state-00__seed-1234",
+      "ft": {
+        "success": null,
+        "video_path": null
+      },
+      "init_state_id": 0,
+      "sampling_seed": 1234,
+      "task_id": 0
+    },
+    {
+      "annotation_note": null,
+      "base": {
+        "success": null,
+        "video_path": null
+      },
+      "behavior_label": null,
+      "episode_key": "task-00__state-25__seed-1235",
+      "ft": {
+        "success": null,
+        "video_path": null
+      },
+      "init_state_id": 25,
+      "sampling_seed": 1235,
+      "task_id": 0
+    },
+    {
+      "annotation_note": null,
+      "base": {
+        "success": null,
+        "video_path": null
+      },
+      "behavior_label": null,
+      "episode_key": "task-01__state-00__seed-1234",
+      "ft": {
+        "success": null,
+        "video_path": null
+      },
+      "init_state_id": 0,
+      "sampling_seed": 1234,
+      "task_id": 1
+    },
+    {
+      "annotation_note": null,
+      "base": {
+        "success": null,
+        "video_path": null
+      },
+      "behavior_label": null,
+      "episode_key": "task-01__state-25__seed-1235",
+      "ft": {
+        "success": null,
+        "video_path": null
+      },
+      "init_state_id": 25,
+      "sampling_seed": 1235,
+      "task_id": 1
+    },
+    {
+      "annotation_note": null,
+      "base": {
+        "success": null,
+        "video_path": null
+      },
+      "behavior_label": null,
+      "episode_key": "task-02__state-00__seed-1234",
+      "ft": {
+        "success": null,
+        "video_path": null
+      },
+      "init_state_id": 0,
+      "sampling_seed": 1234,
+      "task_id": 2
+    },
+    {
+      "annotation_note": null,
+      "base": {
+        "success": null,
+        "video_path": null
+      },
+      "behavior_label": null,
+      "episode_key": "task-02__state-25__seed-1235",
+      "ft": {
+        "success": null,
+        "video_path": null
+      },
+      "init_state_id": 25,
+      "sampling_seed": 1235,
+      "task_id": 2
+    },
+    {
+      "annotation_note": null,
+      "base": {
+        "success": null,
+        "video_path": null
+      },
+      "behavior_label": null,
+      "episode_key": "task-03__state-00__seed-1234",
+      "ft": {
+        "success": null,
+        "video_path": null
+      },
+      "init_state_id": 0,
+      "sampling_seed": 1234,
+      "task_id": 3
+    },
+    {
+      "annotation_note": null,
+      "base": {
+        "success": null,
+        "video_path": null
+      },
+      "behavior_label": null,
+      "episode_key": "task-03__state-25__seed-1235",
+      "ft": {
+        "success": null,
+        "video_path": null
+      },
+      "init_state_id": 25,
+      "sampling_seed": 1235,
+      "task_id": 3
+    },
+    {
+      "annotation_note": null,
+      "base": {
+        "success": null,
+        "video_path": null
+      },
+      "behavior_label": null,
+      "episode_key": "task-04__state-00__seed-1234",
+      "ft": {
+        "success": null,
+        "video_path": null
+      },
+      "init_state_id": 0,
+      "sampling_seed": 1234,
+      "task_id": 4
+    },
+    {
+      "annotation_note": null,
+      "base": {
+        "success": null,
+        "video_path": null
+      },
+      "behavior_label": null,
+      "episode_key": "task-04__state-25__seed-1235",
+      "ft": {
+        "success": null,
+        "video_path": null
+      },
+      "init_state_id": 25,
+      "sampling_seed": 1235,
+      "task_id": 4
+    },
+    {
+      "annotation_note": null,
+      "base": {
+        "success": null,
+        "video_path": null
+      },
+      "behavior_label": null,
+      "episode_key": "task-05__state-00__seed-1234",
+      "ft": {
+        "success": null,
+        "video_path": null
+      },
+      "init_state_id": 0,
+      "sampling_seed": 1234,
+      "task_id": 5
+    },
+    {
+      "annotation_note": null,
+      "base": {
+        "success": null,
+        "video_path": null
+      },
+      "behavior_label": null,
+      "episode_key": "task-05__state-25__seed-1235",
+      "ft": {
+        "success": null,
+        "video_path": null
+      },
+      "init_state_id": 25,
+      "sampling_seed": 1235,
+      "task_id": 5
+    },
+    {
+      "annotation_note": null,
+      "base": {
+        "success": null,
+        "video_path": null
+      },
+      "behavior_label": null,
+      "episode_key": "task-06__state-00__seed-1234",
+      "ft": {
+        "success": null,
+        "video_path": null
+      },
+      "init_state_id": 0,
+      "sampling_seed": 1234,
+      "task_id": 6
+    },
+    {
+      "annotation_note": null,
+      "base": {
+        "success": null,
+        "video_path": null
+      },
+      "behavior_label": null,
+      "episode_key": "task-06__state-25__seed-1235",
+      "ft": {
+        "success": null,
+        "video_path": null
+      },
+      "init_state_id": 25,
+      "sampling_seed": 1235,
+      "task_id": 6
+    },
+    {
+      "annotation_note": null,
+      "base": {
+        "success": null,
+        "video_path": null
+      },
+      "behavior_label": null,
+      "episode_key": "task-07__state-00__seed-1234",
+      "ft": {
+        "success": null,
+        "video_path": null
+      },
+      "init_state_id": 0,
+      "sampling_seed": 1234,
+      "task_id": 7
+    },
+    {
+      "annotation_note": null,
+      "base": {
+        "success": null,
+        "video_path": null
+      },
+      "behavior_label": null,
+      "episode_key": "task-07__state-25__seed-1235",
+      "ft": {
+        "success": null,
+        "video_path": null
+      },
+      "init_state_id": 25,
+      "sampling_seed": 1235,
+      "task_id": 7
+    },
+    {
+      "annotation_note": null,
+      "base": {
+        "success": null,
+        "video_path": null
+      },
+      "behavior_label": null,
+      "episode_key": "task-08__state-00__seed-1234",
+      "ft": {
+        "success": null,
+        "video_path": null
+      },
+      "init_state_id": 0,
+      "sampling_seed": 1234,
+      "task_id": 8
+    },
+    {
+      "annotation_note": null,
+      "base": {
+        "success": null,
+        "video_path": null
+      },
+      "behavior_label": null,
+      "episode_key": "task-08__state-25__seed-1235",
+      "ft": {
+        "success": null,
+        "video_path": null
+      },
+      "init_state_id": 25,
+      "sampling_seed": 1235,
+      "task_id": 8
+    },
+    {
+      "annotation_note": null,
+      "base": {
+        "success": null,
+        "video_path": null
+      },
+      "behavior_label": null,
+      "episode_key": "task-09__state-00__seed-1234",
+      "ft": {
+        "success": null,
+        "video_path": null
+      },
+      "init_state_id": 0,
+      "sampling_seed": 1234,
+      "task_id": 9
+    },
+    {
+      "annotation_note": null,
+      "base": {
+        "success": null,
+        "video_path": null
+      },
+      "behavior_label": null,
+      "episode_key": "task-09__state-25__seed-1235",
+      "ft": {
+        "success": null,
+        "video_path": null
+      },
+      "init_state_id": 25,
+      "sampling_seed": 1235,
+      "task_id": 9
+    }
+  ],
+  "schema_version": 1,
+  "selection_rule": "task-wise fixed keys: state 0/seed 1234 and state 25/seed 1235",
+  "status": "preregistered"
+}

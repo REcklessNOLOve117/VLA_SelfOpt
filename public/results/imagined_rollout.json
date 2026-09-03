@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "status": "awaiting_data",
+  "episode_key": "task-00__state-00__seed-1234",
+  "instruction": null,
+  "condition_frames": [],
+  "actions": [],
+  "generated_frames": [],
+  "rewards": []
+}
