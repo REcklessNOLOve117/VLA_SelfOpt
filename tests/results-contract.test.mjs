@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-const readJson = (name: string) => JSON.parse(readFileSync(new URL(`../public/results/${name}`, import.meta.url), 'utf8'));
+const readJson = (name) => JSON.parse(readFileSync(new URL(`../public/results/${name}`, import.meta.url), 'utf8'));
 
 test('summary exposes the frozen protocol without fabricated metrics', () => {
   const summary = readJson('summary.json');
@@ -22,7 +22,7 @@ test('summary exposes the frozen protocol without fabricated metrics', () => {
 test('paired-video registry contains the twenty pre-registered keys', () => {
   const registry = readJson('paired_videos.json');
   assert.equal(registry.pairs.length, 20);
-  const selections = new Set(registry.pairs.map((pair: { init_state_id: number; sampling_seed: number }) => `${pair.init_state_id}/${pair.sampling_seed}`));
+  const selections = new Set(registry.pairs.map((pair) => `${pair.init_state_id}/${pair.sampling_seed}`));
   assert.deepEqual(selections, new Set(['0/1234', '25/1235']));
 });
 
