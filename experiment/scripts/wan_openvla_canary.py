@@ -129,7 +129,9 @@ def main() -> None:
     cfg.enable_offload = False
     cfg.video_cfg.save_video = False
 
-    env = WanEnv(cfg, num_envs=args.group_size, seed_offset=args.seed, total_num_processes=1, worker_info=None)
+    # A one-worker RLinf run uses rank=0/stage=0, hence seed_offset=0.  Keep
+    # policy sampling (`args.seed`) independent from environment reset sampling.
+    env = WanEnv(cfg, num_envs=args.group_size, seed_offset=0, total_num_processes=1, worker_info=None)
     dataset_paths = [str(path) for path in env.dataset.npy_files]
     normal_indices = [index for index, path in enumerate(dataset_paths) if "_kir" not in Path(path).name]
     kir_indices = [index for index, path in enumerate(dataset_paths) if "_kir" in Path(path).name]
@@ -138,6 +140,11 @@ def main() -> None:
 
     env.reset(episode_indices=np.full(args.group_size, normal_indices[0]))
     normal_context_l1 = context_motion(env.current_obs)
+    env.reset(episode_indices=np.full(args.group_size, kir_indices[0]))
+    kir_context_l1 = context_motion(env.current_obs)
+    if kir_context_l1 <= 1e-4:
+        raise RuntimeError(f"KIR context frames do not differ from the reference frame: l1={kir_context_l1}")
+
     if args.record_name:
         matching_indices = [
             index for index, path in enumerate(dataset_paths) if Path(path).name == args.record_name
@@ -148,12 +155,9 @@ def main() -> None:
             )
         selected_index = matching_indices[0]
     else:
-        selected_index = kir_indices[0]
+        selected_index = int(env.reset_state_ids[0].detach().cpu())
     selected_record = Path(dataset_paths[selected_index]).name
     env.reset(episode_indices=np.full(args.group_size, selected_index))
-    kir_context_l1 = context_motion(env.current_obs)
-    if kir_context_l1 <= 1e-4:
-        raise RuntimeError(f"KIR context frames do not differ from the reference frame: l1={kir_context_l1}")
 
     condition_dir = args.output / "condition"
     generated_dir = args.output / "generated"
@@ -197,6 +201,7 @@ def main() -> None:
             {
                 "chunk_index": chunk_index,
                 "action_shape": list(action_batch.shape),
+                "group_action_std": float(np.std(action_batch)),
                 "generated_shape": list(generated.shape),
                 "finite": bool(torch.isfinite(generated).all() and torch.isfinite(raw_rewards).all() and torch.isfinite(shaped_rewards).all()),
                 "pixel_std": pixel_std,
@@ -216,8 +221,9 @@ def main() -> None:
         "schema_version": 1,
         "status": "ok",
         "seed": args.seed,
-        "episode_key": "task-00__state-00__seed-1234",
+        "episode_key": f"canary__{Path(selected_record).stem}__seed-{args.seed}",
         "initialization_record": selected_record,
+        "initialization_is_kir": selected_index in kir_indices,
         "instruction": instruction,
         "conditions": {
             "condition_frame_length": 5,
@@ -228,10 +234,12 @@ def main() -> None:
         },
         "chunks": chunk_reports,
         "reward_std": reward_std,
+        "group_return_variance": float(np.var(group_returns)),
         "condition_frames": condition_paths,
         "actions": first_actions,
         "generated_frames": generated_paths,
         "rewards": chunk_reports[0]["raw_rewards"][0],
+        "group_returns": group_returns.tolist(),
         "gpu_peak_gib": torch.cuda.max_memory_allocated() / 2**30,
         "elapsed_seconds": time.perf_counter() - started,
     }
@@ -239,7 +247,7 @@ def main() -> None:
     failures = []
     if reward_std <= 1e-4:
         failures.append(f"reward_std={reward_std} must be > 1e-4")
-    if float(np.var(group_returns)) <= 0:
+    if report["group_return_variance"] <= 0:
         failures.append("no 8-sample group has non-zero return variance")
     if failures:
         raise RuntimeError("Wan/OpenVLA canary failed: " + "; ".join(failures))

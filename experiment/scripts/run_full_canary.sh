@@ -12,10 +12,16 @@ mkdir -p "${POC_RUN_DIR}"
 export EMBODIED_PATH="${RLINF_ROOT}/examples/embodiment"
 
 python "${POC_PROJECT_ROOT}/scripts/gpu_cleanup_check.py" snapshot --output "${POC_RUN_DIR}/gpu-before.json"
-python "${POC_PROJECT_ROOT}/scripts/wan_openvla_canary.py" \
-  --config-dir "${POC_PROJECT_ROOT}/configs" \
-  --policy-path "${OPENVLA_BASE_PATH}" \
+CANARY_ARGS=(
+  --config-dir "${POC_PROJECT_ROOT}/configs"
+  --policy-path "${OPENVLA_BASE_PATH}"
   --output "${POC_RUN_DIR}/rollout"
+  --chunks "${POC_CANARY_CHUNKS:-32}"
+)
+if [[ -n "${POC_CANARY_RECORD_NAME:-}" ]]; then
+  CANARY_ARGS+=(--record-name "${POC_CANARY_RECORD_NAME}")
+fi
+python "${POC_PROJECT_ROOT}/scripts/wan_openvla_canary.py" "${CANARY_ARGS[@]}"
 
 bash "${POC_PROJECT_ROOT}/scripts/run_grpo_canary.sh"
 

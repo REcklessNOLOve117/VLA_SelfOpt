@@ -40,7 +40,7 @@ The file is JSON-compatible YAML and intentionally contains no absolute host pat
 
 1. Start Ray with `cluster_start.sh` on Node A (`POC_NODE_RANK=0`) and Node B (`POC_NODE_RANK=1`), then run `cluster_check.sh`.
 2. Run the six-update benchmark on Node A, Node B, and the joint cluster. Combine the three JSON reports and run `select_topology.py`. The decision is automatic at a 1.5× joint/single threshold.
-3. Run `run_full_canary.sh` with exactly one visible H20. Its 8 environments × 3 action chunks produce 24 training sequences, so the canary uses global batch 24 and micro batch 8. Formal training is forbidden unless `canary-acceptance.json` says `passed`.
+3. Run `run_full_canary.sh` with exactly one visible H20. By default it follows one 8-sample group for the full 32 action chunks (256 steps), matching the official rollout horizon; the one-update training canary therefore uses global batch 256 and micro batch 8. `POC_CANARY_RECORD_NAME` can pin an exact KIR record during diagnosis. Formal training is forbidden unless `canary-acceptance.json` says `passed`.
 4. Evaluate Base with `run_eval_shard.sh`; merge shards and verify all 1,500 rows before training.
 5. Run `run_train.sh` with `POC_NUM_NODES` from `topology_decision.json`. Resume uses the same `budget.json`, so the 72-hour clock never resets.
 6. Convert the last complete checkpoint with `export_checkpoint.sh`, then evaluate the merged FT checkpoint using the exact same manifest.

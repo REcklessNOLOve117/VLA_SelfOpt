@@ -32,7 +32,7 @@ def validate_canary(rollout: dict[str, Any], training: dict[str, Any], cleanup: 
             failures.append(f"chunk {index}: generated frames have no temporal change")
     if float(rollout.get("reward_std", 0)) <= 1e-4:
         failures.append("reward output is constant")
-    if not any(float(chunk.get("group_return_variance", 0)) > 0 for chunk in chunks):
+    if float(rollout.get("group_return_variance", 0)) <= 0:
         failures.append("no GRPO group has non-zero return variance")
 
     required_training = {
