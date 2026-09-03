@@ -32,6 +32,9 @@ export WAN_WM_PATH=/local-cache/RLinf-Wan-LIBERO-Spatial
 The checkout must be detached at the pinned commit. The container must be
 `rlinf/rlinf:agentic-rlinf0.3-wan` pinned by digest, not only by tag. Run
 `scripts/preflight.py` on each node; it fails if a GPU is occupied or an asset is missing.
+When writing `experiment_manifest.yaml`, pass the immutable POC commit, both
+Hugging Face revisions and the frozen config to `scripts/record_experiment.py`.
+The file is JSON-compatible YAML and intentionally contains no absolute host paths.
 
 ## Ordered execution
 

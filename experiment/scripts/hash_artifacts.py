@@ -26,12 +26,21 @@ def main() -> None:
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     rows = []
-    for root in args.paths:
+    for asset_index, root in enumerate(args.paths, start=1):
         files = [root] if root.is_file() else sorted(path for path in root.rglob("*") if path.is_file())
         if not files:
             raise SystemExit(f"No files found at {root}")
         for path in files:
-            rows.append({"root": str(root.resolve()), "relative_path": str(path.relative_to(root) if root.is_dir() else path.name).replace("\\", "/"), "size": path.stat().st_size, "sha256": hash_file(path)})
+            rows.append(
+                {
+                    # Do not leak machine- or user-specific absolute paths into publishable manifests.
+                    "asset_id": f"asset_{asset_index}",
+                    "asset_name": root.name,
+                    "relative_path": str(path.relative_to(root) if root.is_dir() else path.name).replace("\\", "/"),
+                    "size": path.stat().st_size,
+                    "sha256": hash_file(path),
+                }
+            )
     atomic_write_json(args.output, {"schema_version": 1, "files": rows})
     print(json.dumps({"files": len(rows), "output": str(args.output)}))
 
