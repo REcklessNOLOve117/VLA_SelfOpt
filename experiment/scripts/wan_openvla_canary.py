@@ -216,6 +216,13 @@ def main() -> None:
         "elapsed_seconds": time.perf_counter() - started,
     }
     (args.output / "rollout_report.json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    failures = []
+    if reward_std <= 1e-4:
+        failures.append(f"reward_std={reward_std} must be > 1e-4")
+    if not any(chunk["group_return_variance"] > 0 for chunk in chunk_reports):
+        failures.append("no 8-sample group has non-zero return variance")
+    if failures:
+        raise RuntimeError("Wan/OpenVLA canary failed: " + "; ".join(failures))
     print("WAN_OPENVLA_CANARY_OK " + json.dumps({"reward_std": reward_std, "output": str(args.output)}))
 
 

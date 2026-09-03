@@ -11,6 +11,7 @@ from pathlib import Path
 from hydra import compose
 from hydra.core.global_hydra import GlobalHydra
 from hydra.initialize import initialize_config_dir
+from omegaconf import open_dict
 
 from rlinf.models import get_model
 
@@ -28,7 +29,8 @@ def main() -> None:
     GlobalHydra.instance().clear()
     with initialize_config_dir(config_dir=str(args.config_dir.resolve()), version_base="1.1"):
         cfg = compose(config_name=args.config_name)
-    cfg.actor.model.load_to_device = False
+    with open_dict(cfg.actor.model):
+        cfg.actor.model.load_to_device = False
     model = get_model(cfg.actor.model)
     trainable = [name for name, parameter in model.named_parameters() if parameter.requires_grad]
     forbidden = [name for name in trainable if "lora_" not in name]
