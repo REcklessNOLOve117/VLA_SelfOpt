@@ -10,6 +10,7 @@ does not use the existing dirty checkout as a training source.
 - Actor: OpenVLA-OFT SFT checkpoint with a new rank-32/alpha-32 LoRA; every non-LoRA parameter remains frozen.
 - Budget: 100 completed updates or 72 wall-clock hours from the first formal launch.
 - Evaluate: 10 LIBERO-Spatial tasks × 50 canonical states × seeds 1234/1235/1236, exactly 1,500 episodes per model.
+- Precision/rendering: training is BF16; adapter merge and both truth evaluations are FP32, with OSMesa fixed for headless rendering.
 - Success: the lower endpoint of the paired, task-stratified cluster-bootstrap 95% interval for `FT - Base` is above zero.
 
 Training rollout provenance is fixed: an official local initialization/KIR record
@@ -54,7 +55,7 @@ benchmark, and formal training container on that host must export
 1. Start Ray with `cluster_start.sh` on Node A (`POC_NODE_RANK=0`) and Node B (`POC_NODE_RANK=1`), then run `cluster_check.sh`.
 2. Run the six-update benchmark on Node A, Node B, and the joint cluster. Combine the three JSON reports and run `select_topology.py`. The decision is automatic at a 1.5× joint/single threshold.
 3. Run `run_full_canary.sh` with all 8 H20 GPUs visible and an exclusive Ray window. The standalone rollout checks one fixed 8-sample group for the full 32 action chunks (256 steps). The real RLinf training canary uses 64 environments (8 GRPO groups), global batch 2048, and micro batch 32. After update 1 it validates TensorBoard scalars and refuses to resume if returns are empty, rewards/advantages are non-finite, or the policy gradient is zero. `POC_CANARY_RECORD_NAME` can pin the standalone rollout record during diagnosis. Formal training is forbidden unless `canary-acceptance.json` says `passed`.
-4. Evaluate Base with `run_eval_shard.sh`; merge shards and verify all 1,500 rows before training.
+4. Evaluate Base with `run_eval_shard.sh`; merge shards and verify all 1,500 rows before training. The launcher selects OSMesa before importing robosuite and retries native renderer exits 134/139 at most twice for the same pending episode. This avoids the reproducible EGL `mjr_readPixels` abort observed on the validated headless H20 host.
 5. Run `run_train.sh` with `POC_NUM_NODES` from `topology_decision.json`. Resume uses the same `budget.json`, so the 72-hour clock never resets.
 6. Convert the last complete checkpoint with `export_checkpoint.sh`, then evaluate the merged FT checkpoint using the exact same manifest.
 7. Merge Base and FT shards, run `aggregate_results.py`, and copy the generated bundle and media into the static result site's `public/results` directory.

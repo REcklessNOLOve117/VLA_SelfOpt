@@ -41,6 +41,18 @@ class ShellLauncherTests(unittest.TestCase):
                 script = (ROOT / "scripts" / name).read_text()
                 self.assertIn('default="float32"', script)
 
+    def test_truth_evaluation_uses_stable_renderer_and_native_crash_retries(self) -> None:
+        evaluator = (ROOT / "scripts" / "eval_libero_manifest.py").read_text()
+        launcher = (ROOT / "scripts" / "run_eval_shard.sh").read_text()
+        self.assertLess(evaluator.index('setdefault("MUJOCO_GL"'), evaluator.index("import imageio"))
+        self.assertIn('setdefault("MUJOCO_GL", "osmesa")', evaluator)
+        self.assertIn('"renderer_backend": RENDERER_BACKEND', evaluator)
+        self.assertIn('${POC_RENDERER_BACKEND:=osmesa}', launcher)
+        self.assertIn('"${return_code}" -ne 134', launcher)
+        self.assertIn('"${return_code}" -ne 139', launcher)
+        self.assertIn('crash_retries=$((crash_retries + 1))', launcher)
+        self.assertIn("--dtype float32", launcher)
+
     def test_gpu_launchers_require_verified_nvls_setting(self) -> None:
         for name in (
             "cluster_start.sh",

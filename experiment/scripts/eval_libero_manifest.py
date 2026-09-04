@@ -16,6 +16,12 @@ import sys
 from collections import deque
 from pathlib import Path
 
+# Select the renderer before importing LIBERO / robosuite / OpenGL. EGL
+# mjr_readPixels is unstable on the validated headless H20 host; OSMesa is
+# slower but deterministic and survived the failing canonical episodes.
+RENDERER_BACKEND = os.environ.setdefault("MUJOCO_GL", "osmesa")
+os.environ.setdefault("PYOPENGL_PLATFORM", RENDERER_BACKEND)
+
 import imageio.v2 as imageio
 import numpy as np
 import torch
@@ -180,6 +186,7 @@ def run_episode(
         "schema_version": 1,
         "model": args.model_label,
         "inference_dtype": args.dtype,
+        "renderer_backend": RENDERER_BACKEND,
         "task_id": int(spec["task_id"]),
         "task_name": instruction,
         "init_state_id": int(spec["init_state_id"]),
@@ -207,8 +214,6 @@ def main() -> None:
         raise SystemExit("shard-index must satisfy 0 <= index < num-shards")
     if not torch.cuda.is_available():
         raise RuntimeError("CUDA is unavailable")
-    os.environ.setdefault("MUJOCO_GL", "egl")
-    os.environ.setdefault("PYOPENGL_PLATFORM", "egl")
     os.environ.setdefault("HF_HUB_OFFLINE", "1")
     os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
     args.output.parent.mkdir(parents=True, exist_ok=True)
