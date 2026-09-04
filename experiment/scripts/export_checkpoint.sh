@@ -11,6 +11,8 @@ export PYTHONPATH="${RLINF_ROOT}${PYTHONPATH:+:${PYTHONPATH}}"
 mkdir -p "${POC_EXPORT_DIR}/adapter" "${POC_EXPORT_DIR}/merged"
 
 python "${POC_PROJECT_ROOT}/scripts/convert_openvla_lora_checkpoint.py" \
+  --config-path "${RLINF_ROOT}/rlinf/utils/ckpt_convertor/fsdp_convertor/config" \
+  --config-name fsdp_model_convertor \
   convertor.ckpt_path="${POC_FSDP_CHECKPOINT}" \
   convertor.save_path="${POC_EXPORT_DIR}/adapter" \
   convertor.merge_lora_weighs=false \
@@ -20,6 +22,8 @@ python "${POC_PROJECT_ROOT}/scripts/convert_openvla_lora_checkpoint.py" \
   model.is_lora=true model.lora_rank=32 model.lora_path=null
 
 python "${POC_PROJECT_ROOT}/scripts/convert_openvla_lora_checkpoint.py" \
+  --config-path "${RLINF_ROOT}/rlinf/utils/ckpt_convertor/fsdp_convertor/config" \
+  --config-name fsdp_model_convertor \
   convertor.ckpt_path="${POC_FSDP_CHECKPOINT}" \
   convertor.save_path="${POC_EXPORT_DIR}/merged" \
   convertor.merge_lora_weighs=true \

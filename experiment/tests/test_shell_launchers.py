@@ -12,6 +12,8 @@ class ShellLauncherTests(unittest.TestCase):
         script = (ROOT / "scripts" / "export_checkpoint.sh").read_text()
         entrypoint = 'python "${POC_PROJECT_ROOT}/scripts/convert_openvla_lora_checkpoint.py"'
         self.assertEqual(script.count(entrypoint), 2)
+        self.assertEqual(script.count("--config-name fsdp_model_convertor"), 2)
+        self.assertEqual(script.count("fsdp_convertor/config"), 2)
         self.assertNotIn("fsdp_convertor/convert_pt_to_hf.py", script)
 
     def test_peft_compatibility_entrypoint_preserves_base_layer_names(self) -> None:
