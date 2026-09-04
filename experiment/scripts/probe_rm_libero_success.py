@@ -42,6 +42,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--sampling-seeds", type=int, nargs="+", default=[1234, 1235, 1236])
     parser.add_argument("--max-action-steps", type=int, default=512)
     parser.add_argument("--settle-steps", type=int, default=10)
+    parser.add_argument("--post-success-steps", type=int, default=32)
     parser.add_argument("--temperature", type=float, default=1.6)
     parser.add_argument("--success-window", type=int, default=16)
     parser.add_argument("--score-batch-size", type=int, default=32)
@@ -69,7 +70,7 @@ def score_images(rm: ResnetRewModel, images: list[np.ndarray], batch_size: int) 
 
 
 def run_candidate(
-    *, env, initial_state, instruction: str, model, processor, state_id: int, sampling_seed: int, args
+    *, env, initial_state, instruction: str, model, processor, sampling_seed: int, args
 ) -> tuple[bool, list[np.ndarray], int]:
     set_episode_seed(sampling_seed)
     env.reset()
@@ -84,7 +85,16 @@ def run_candidate(
         obs, _, done, _ = env.step(process_action(np.asarray(queue.popleft(), dtype=np.float32)).tolist())
         frames.append(np.asarray(get_libero_image(obs), dtype=np.uint8))
         if done:
-            return True, frames, action_step
+            success_step = action_step
+            # The simulator's first done=True frame can still be occluded by the
+            # gripper. Continue the same policy briefly so the RM also sees
+            # stable, visibly completed states without changing the success label.
+            for _ in range(args.post_success_steps):
+                if not queue:
+                    queue.extend(infer_action_chunk(model, processor, frames[-1], instruction, args.temperature))
+                obs, _, _, _ = env.step(process_action(np.asarray(queue.popleft(), dtype=np.float32)).tolist())
+                frames.append(np.asarray(get_libero_image(obs), dtype=np.uint8))
+            return True, frames, success_step
     return False, frames, args.max_action_steps
 
 
@@ -112,7 +122,6 @@ def main() -> None:
                         instruction=instruction,
                         model=model,
                         processor=processor,
-                        state_id=state_id,
                         sampling_seed=sampling_seed,
                         args=args,
                     )
