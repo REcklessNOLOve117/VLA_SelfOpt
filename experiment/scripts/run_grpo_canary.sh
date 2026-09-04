@@ -22,6 +22,7 @@ python "${RLINF_ROOT}/examples/embodiment/train_embodied_agent.py" \
   --config-path "${POC_PROJECT_ROOT}/configs" \
   --config-name wan_libero_spatial_grpo_openvlaoft_lora32 \
   cluster.num_nodes=1 runner.max_steps=1 runner.save_interval=1 \
+  env.train.seed="${POC_CANARY_ENV_SEED:-0}" \
   env.train.rollout_epoch=1 env.train.total_num_envs=8 \
   env.train.max_episode_steps=256 env.train.max_steps_per_rollout_epoch=256 \
   actor.micro_batch_size=8 actor.global_batch_size=256 \
@@ -34,6 +35,7 @@ python "${RLINF_ROOT}/examples/embodiment/train_embodied_agent.py" \
   --config-name wan_libero_spatial_grpo_openvlaoft_lora32 \
   cluster.num_nodes=1 runner.max_steps=2 runner.save_interval=1 \
   runner.resume_dir="${FIRST_CHECKPOINT}" \
+  env.train.seed="${POC_CANARY_ENV_SEED:-0}" \
   env.train.rollout_epoch=1 env.train.total_num_envs=8 \
   env.train.max_episode_steps=256 env.train.max_steps_per_rollout_epoch=256 \
   actor.micro_batch_size=8 actor.global_batch_size=256 \

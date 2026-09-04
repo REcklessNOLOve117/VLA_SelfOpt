@@ -57,6 +57,9 @@ searches the fixed task/state/seed order for a simulator-confirmed `done=True`,
 then scores its final frame window and the initial negative frame with the exact
 Wan RM preprocessing. Use `select_kir_canary_records.py` to create the deterministic
 one-record-per-task manifest for the separate stratified imagined-rollout check.
+For a reproducible positive training canary, set both the verified
+`POC_CANARY_RECORD_NAME` and its corresponding `POC_CANARY_ENV_SEED`; these affect
+only the disposable canary, never the formal training seed or reset distribution.
 
 The direct evaluator writes each completed episode durably and supports disjoint shards.
 Infrastructure exceptions are retried twice and then abort the evaluation without writing a
