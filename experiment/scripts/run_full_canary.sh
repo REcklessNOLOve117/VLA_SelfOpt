@@ -10,6 +10,7 @@ set -euo pipefail
 test "${POC_CANARY_OWNS_RAY}" = "1"
 mkdir -p "${POC_RUN_DIR}"
 export EMBODIED_PATH="${RLINF_ROOT}/examples/embodiment"
+trap 'ray stop --force >/dev/null 2>&1 || true' EXIT
 
 python "${POC_PROJECT_ROOT}/scripts/gpu_cleanup_check.py" snapshot --output "${POC_RUN_DIR}/gpu-before.json"
 CANARY_ARGS=(
@@ -39,6 +40,7 @@ python "${POC_PROJECT_ROOT}/scripts/compare_merged_actions.py" \
   --output "${POC_RUN_DIR}/merge-report.json"
 
 ray stop --force
+trap - EXIT
 python "${POC_PROJECT_ROOT}/scripts/gpu_cleanup_check.py" check \
   --before "${POC_RUN_DIR}/gpu-before.json" \
   --output "${POC_RUN_DIR}/cleanup-report.json"
