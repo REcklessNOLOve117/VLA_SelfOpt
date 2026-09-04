@@ -7,6 +7,7 @@ set -euo pipefail
 : "${WAN_WM_PATH:?Set WAN_WM_PATH}"
 : "${POC_RUN_DIR:?Set POC_RUN_DIR}"
 export EMBODIED_PATH="${RLINF_ROOT}/examples/embodiment"
+export PYTHONPATH="${RLINF_ROOT}${PYTHONPATH:+:${PYTHONPATH}}"
 mkdir -p "${POC_RUN_DIR}"
 
 CANARY_TOTAL_ENVS="${POC_CANARY_TOTAL_ENVS:-64}"

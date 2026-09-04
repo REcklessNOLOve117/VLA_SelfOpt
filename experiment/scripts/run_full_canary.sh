@@ -10,6 +10,7 @@ set -euo pipefail
 test "${POC_CANARY_OWNS_RAY}" = "1"
 mkdir -p "${POC_RUN_DIR}"
 export EMBODIED_PATH="${RLINF_ROOT}/examples/embodiment"
+export PYTHONPATH="${RLINF_ROOT}${PYTHONPATH:+:${PYTHONPATH}}"
 trap 'ray stop --force >/dev/null 2>&1 || true' EXIT
 
 python "${POC_PROJECT_ROOT}/scripts/gpu_cleanup_check.py" snapshot --output "${POC_RUN_DIR}/gpu-before.json"
