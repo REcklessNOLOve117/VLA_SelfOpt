@@ -15,6 +15,7 @@ class ShellLauncherTests(unittest.TestCase):
         self.assertEqual(script.count("--config-name fsdp_model_convertor"), 1)
         self.assertEqual(script.count("fsdp_convertor/config"), 1)
         self.assertIn('python "${POC_PROJECT_ROOT}/scripts/merge_openvla_adapter.py"', script)
+        self.assertIn("--dtype float32", script)
         self.assertNotIn("fsdp_convertor/convert_pt_to_hf.py", script)
 
     def test_peft_compatibility_entrypoint_preserves_base_layer_names(self) -> None:
@@ -32,6 +33,13 @@ class ShellLauncherTests(unittest.TestCase):
         self.assertIn("merge_and_unload(safe_merge=True)", script)
         self.assertGreaterEqual(script.count("local_files_only=True"), 2)
         self.assertIn("Refusing to overwrite", script)
+        self.assertIn('default="float32"', script)
+
+    def test_equivalence_and_truth_evaluation_default_to_float32(self) -> None:
+        for name in ("compare_merged_actions.py", "eval_libero_manifest.py"):
+            with self.subTest(name=name):
+                script = (ROOT / "scripts" / name).read_text()
+                self.assertIn('default="float32"', script)
 
     def test_gpu_launchers_require_verified_nvls_setting(self) -> None:
         for name in (

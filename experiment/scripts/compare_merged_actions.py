@@ -29,6 +29,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--wan-dataset", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--samples", type=int, default=100)
+    parser.add_argument(
+        "--dtype",
+        choices=("float32", "bfloat16"),
+        default="float32",
+        help="Inference precision used for both adapter and merged checkpoints.",
+    )
     return parser.parse_args()
 
 
@@ -56,8 +62,14 @@ def load_samples(dataset: Path, count: int) -> list[tuple[np.ndarray, str]]:
     return result
 
 
-def load_model(path: Path):
-    model = AutoModelForVision2Seq.from_pretrained(str(path), torch_dtype=torch.bfloat16, low_cpu_mem_usage=True, trust_remote_code=True, local_files_only=True)
+def load_model(path: Path, torch_dtype: torch.dtype):
+    model = AutoModelForVision2Seq.from_pretrained(
+        str(path),
+        torch_dtype=torch_dtype,
+        low_cpu_mem_usage=True,
+        trust_remote_code=True,
+        local_files_only=True,
+    )
     stats_path = path / "dataset_statistics.json"
     if stats_path.is_file():
         model.norm_stats = json.loads(stats_path.read_text(encoding="utf-8"))
@@ -67,7 +79,7 @@ def load_model(path: Path):
 
 
 @torch.inference_mode()
-def infer(model, processor, samples: list[tuple[np.ndarray, str]]) -> np.ndarray:
+def infer(model, processor, samples: list[tuple[np.ndarray, str]], torch_dtype: torch.dtype) -> np.ndarray:
     outputs = []
     model.eval().to("cuda")
     for index, (array, instruction) in enumerate(samples):
@@ -83,7 +95,7 @@ def infer(model, processor, samples: list[tuple[np.ndarray, str]]) -> np.ndarray
             attention_mask = torch.cat((attention_mask, torch.ones((1, 1), dtype=attention_mask.dtype, device="cuda")), dim=1)
         actions, _ = model.generate_action_verl(
             input_ids=input_ids,
-            pixel_values=batch["pixel_values"].to("cuda", dtype=torch.bfloat16),
+            pixel_values=batch["pixel_values"].to("cuda", dtype=torch_dtype),
             attention_mask=attention_mask,
             padding_idx=processor.tokenizer.pad_token_id,
             do_sample=False,
@@ -96,16 +108,30 @@ def infer(model, processor, samples: list[tuple[np.ndarray, str]]) -> np.ndarray
 
 def main() -> None:
     args = parse_args()
+    torch_dtype = {"float32": torch.float32, "bfloat16": torch.bfloat16}[args.dtype]
     samples = load_samples(args.wan_dataset, args.samples)
     processor = AutoProcessor.from_pretrained(str(args.base_policy), trust_remote_code=True, local_files_only=True)
-    adapter_model = PeftModel.from_pretrained(load_model(args.base_policy), str(args.adapter), is_trainable=False)
-    adapter_actions = infer(adapter_model, processor, samples)
+    adapter_model = PeftModel.from_pretrained(
+        load_model(args.base_policy, torch_dtype), str(args.adapter), is_trainable=False
+    )
+    adapter_actions = infer(adapter_model, processor, samples, torch_dtype)
     del adapter_model
     gc.collect()
     torch.cuda.empty_cache()
-    merged_actions = infer(load_model(args.merged_policy), processor, samples)
-    max_diff = float(np.max(np.abs(adapter_actions - merged_actions)))
-    report = {"schema_version": 1, "samples": args.samples, "max_abs_action_diff": max_diff, "threshold": 1e-3, "passed": max_diff <= 1e-3}
+    merged_actions = infer(load_model(args.merged_policy, torch_dtype), processor, samples, torch_dtype)
+    absolute_diff = np.abs(adapter_actions - merged_actions)
+    max_diff = float(np.max(absolute_diff))
+    report = {
+        "schema_version": 1,
+        "samples": args.samples,
+        "dtype": args.dtype,
+        "compared_action_values": int(absolute_diff.size),
+        "different_action_values": int(np.count_nonzero(absolute_diff)),
+        "mean_abs_action_diff": float(np.mean(absolute_diff)),
+        "max_abs_action_diff": max_diff,
+        "threshold": 1e-3,
+        "passed": max_diff <= 1e-3,
+    }
     atomic_write_json(args.output, report)
     print(json.dumps(report, indent=2))
     if not report["passed"]:

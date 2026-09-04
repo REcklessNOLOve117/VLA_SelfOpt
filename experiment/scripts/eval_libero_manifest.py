@@ -51,6 +51,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--settle-steps", type=int, default=10)
     parser.add_argument("--temperature", type=float, default=1.6)
     parser.add_argument("--infrastructure-retries", type=int, default=2)
+    parser.add_argument(
+        "--dtype",
+        choices=("float32", "bfloat16"),
+        default="float32",
+        help="Policy inference precision; Base and FT must use the same value.",
+    )
     return parser.parse_args()
 
 
@@ -69,9 +75,13 @@ def center_crop(image: Image.Image) -> Image.Image:
     return image.crop((left, top, left + crop_width, top + crop_height)).resize((224, 224), Image.Resampling.LANCZOS)
 
 
-def load_policy(path: Path):
+def load_policy(path: Path, torch_dtype: torch.dtype):
     model = AutoModelForVision2Seq.from_pretrained(
-        str(path), torch_dtype=torch.bfloat16, low_cpu_mem_usage=True, trust_remote_code=True, local_files_only=True
+        str(path),
+        torch_dtype=torch_dtype,
+        low_cpu_mem_usage=True,
+        trust_remote_code=True,
+        local_files_only=True,
     ).eval().to("cuda")
     processor = AutoProcessor.from_pretrained(str(path), trust_remote_code=True, local_files_only=True)
     stats_path = path / "dataset_statistics.json"
@@ -91,7 +101,8 @@ def infer_action_chunk(model, processor, image: np.ndarray, instruction: str, te
     batch = processor(prompt, pil_image)
     input_ids = batch["input_ids"].to("cuda")
     attention_mask = batch["attention_mask"].to("cuda")
-    pixel_values = batch["pixel_values"].to("cuda", dtype=torch.bfloat16)
+    model_dtype = next(model.parameters()).dtype
+    pixel_values = batch["pixel_values"].to("cuda", dtype=model_dtype)
     if not torch.all(input_ids[:, -1] == 29871):
         input_ids = torch.cat((input_ids, torch.full((1, 1), 29871, device="cuda")), dim=1)
         attention_mask = torch.cat((attention_mask, torch.ones((1, 1), dtype=attention_mask.dtype, device="cuda")), dim=1)
@@ -168,6 +179,7 @@ def run_episode(
     return {
         "schema_version": 1,
         "model": args.model_label,
+        "inference_dtype": args.dtype,
         "task_id": int(spec["task_id"]),
         "task_name": instruction,
         "init_state_id": int(spec["init_state_id"]),
@@ -208,7 +220,8 @@ def main() -> None:
     if args.output.exists():
         completed = {str(row["episode_key"]) for row in read_jsonl(args.output)}
     selected = [row for row in selected if str(row["episode_key"]) not in completed]
-    model, processor = load_policy(args.policy_path)
+    torch_dtype = {"float32": torch.float32, "bfloat16": torch.bfloat16}[args.dtype]
+    model, processor = load_policy(args.policy_path, torch_dtype)
     suite = benchmark.get_benchmark_dict()["libero_spatial"]()
 
     current_task_id = None

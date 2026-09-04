@@ -24,4 +24,5 @@ python "${POC_PROJECT_ROOT}/scripts/convert_openvla_lora_checkpoint.py" \
 python "${POC_PROJECT_ROOT}/scripts/merge_openvla_adapter.py" \
   --base-policy "${OPENVLA_BASE_PATH}" \
   --adapter "${POC_EXPORT_DIR}/adapter/lora_adapter" \
-  --output "${POC_EXPORT_DIR}/merged"
+  --output "${POC_EXPORT_DIR}/merged" \
+  --dtype float32
