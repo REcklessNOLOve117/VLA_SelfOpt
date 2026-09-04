@@ -21,13 +21,7 @@ python "${POC_PROJECT_ROOT}/scripts/convert_openvla_lora_checkpoint.py" \
   model.unnorm_key=libero_spatial_no_noops \
   model.is_lora=true model.lora_rank=32 model.lora_path=null
 
-python "${POC_PROJECT_ROOT}/scripts/convert_openvla_lora_checkpoint.py" \
-  --config-path "${RLINF_ROOT}/rlinf/utils/ckpt_convertor/fsdp_convertor/config" \
-  --config-name fsdp_model_convertor \
-  convertor.ckpt_path="${POC_FSDP_CHECKPOINT}" \
-  convertor.save_path="${POC_EXPORT_DIR}/merged" \
-  convertor.merge_lora_weighs=true \
-  convertor.torch_dtype=bf16 \
-  model.model_path="${OPENVLA_BASE_PATH}" \
-  model.unnorm_key=libero_spatial_no_noops \
-  model.is_lora=true model.lora_rank=32 model.lora_path=null
+python "${POC_PROJECT_ROOT}/scripts/merge_openvla_adapter.py" \
+  --base-policy "${OPENVLA_BASE_PATH}" \
+  --adapter "${POC_EXPORT_DIR}/adapter/lora_adapter" \
+  --output "${POC_EXPORT_DIR}/merged"
