@@ -8,6 +8,11 @@ set -euo pipefail
 : "${POC_RUN_DIR:?Set POC_RUN_DIR}"
 : "${POC_NUM_NODES:?Set POC_NUM_NODES to 1 or 2}"
 : "${POC_BENCHMARK_LABEL:?Set POC_BENCHMARK_LABEL}"
+: "${NCCL_NVLS_ENABLE:?Set NCCL_NVLS_ENABLE=0 after the host NCCL smoke test}"
+if [[ "${NCCL_NVLS_ENABLE}" != "0" ]]; then
+  echo "NCCL_NVLS_ENABLE must be 0 for the verified POC runtime" >&2
+  exit 2
+fi
 
 export EMBODIED_PATH="${RLINF_ROOT}/examples/embodiment"
 mkdir -p "${POC_RUN_DIR}"

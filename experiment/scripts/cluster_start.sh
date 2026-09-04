@@ -4,6 +4,11 @@ set -euo pipefail
 : "${POC_HEAD_IP:?Set POC_HEAD_IP}"
 : "${POC_NODE_RANK:?Set POC_NODE_RANK to 0 or 1}"
 : "${POC_NET_DEVICE:?Set POC_NET_DEVICE to the cross-node interface}"
+: "${NCCL_NVLS_ENABLE:?Set NCCL_NVLS_ENABLE=0 after the host NCCL smoke test}"
+if [[ "${NCCL_NVLS_ENABLE}" != "0" ]]; then
+  echo "NCCL_NVLS_ENABLE must be 0 for the verified POC runtime" >&2
+  exit 2
+fi
 
 if ray status >/dev/null 2>&1; then
   echo "A Ray cluster is already active. Refusing to alter it."

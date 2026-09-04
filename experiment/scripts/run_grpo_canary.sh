@@ -6,6 +6,11 @@ set -euo pipefail
 : "${OPENVLA_BASE_PATH:?Set OPENVLA_BASE_PATH}"
 : "${WAN_WM_PATH:?Set WAN_WM_PATH}"
 : "${POC_RUN_DIR:?Set POC_RUN_DIR}"
+: "${NCCL_NVLS_ENABLE:?Set NCCL_NVLS_ENABLE=0 after the host NCCL smoke test}"
+if [[ "${NCCL_NVLS_ENABLE}" != "0" ]]; then
+  echo "NCCL_NVLS_ENABLE must be 0 for the verified POC runtime" >&2
+  exit 2
+fi
 export EMBODIED_PATH="${RLINF_ROOT}/examples/embodiment"
 export PYTHONPATH="${RLINF_ROOT}${PYTHONPATH:+:${PYTHONPATH}}"
 mkdir -p "${POC_RUN_DIR}"

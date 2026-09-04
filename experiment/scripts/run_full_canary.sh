@@ -7,7 +7,12 @@ set -euo pipefail
 : "${WAN_WM_PATH:?Set WAN_WM_PATH}"
 : "${RLINF_ROOT:?Set RLINF_ROOT}"
 : "${POC_CANARY_OWNS_RAY:?Set POC_CANARY_OWNS_RAY=1 only for an exclusive canary cluster}"
+: "${NCCL_NVLS_ENABLE:?Set NCCL_NVLS_ENABLE=0 after the host NCCL smoke test}"
 test "${POC_CANARY_OWNS_RAY}" = "1"
+if [[ "${NCCL_NVLS_ENABLE}" != "0" ]]; then
+  echo "NCCL_NVLS_ENABLE must be 0 for the verified POC runtime" >&2
+  exit 2
+fi
 mkdir -p "${POC_RUN_DIR}"
 export EMBODIED_PATH="${RLINF_ROOT}/examples/embodiment"
 export PYTHONPATH="${RLINF_ROOT}${PYTHONPATH:+:${PYTHONPATH}}"

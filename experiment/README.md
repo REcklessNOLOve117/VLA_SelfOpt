@@ -42,6 +42,13 @@ When writing `experiment_manifest.yaml`, pass the immutable POC commit, both
 Hugging Face revisions and the frozen config to `scripts/record_experiment.py`.
 The file is JSON-compatible YAML and intentionally contains no absolute host paths.
 
+Before an 8-GPU run, verify NCCL with a minimal all-reduce inside the pinned image.
+On the validated H20 host/image pair, NCCL 2.21.5's NVLS transport fails during the
+initial FSDP broadcast with CUDA error 401, while the same 8-GPU all-reduce succeeds
+with NVLink/P2P retained and only `NCCL_NVLS_ENABLE=0`. Therefore every canary,
+benchmark, and formal training container on that host must export
+`NCCL_NVLS_ENABLE=0`; the canary launchers reject a missing or different value.
+
 ## Ordered execution
 
 1. Start Ray with `cluster_start.sh` on Node A (`POC_NODE_RANK=0`) and Node B (`POC_NODE_RANK=1`), then run `cluster_check.sh`.
