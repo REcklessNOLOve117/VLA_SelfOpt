@@ -21,6 +21,11 @@ class ShellLauncherTests(unittest.TestCase):
         self.assertNotIn('replace(".base_layer.", ".")', script)
         self.assertIn("_normalize_state_dict_keys = normalize_peft_state_dict_keys", script)
 
+    def test_export_compatibility_entrypoint_sanitizes_omegaconf_values(self) -> None:
+        script = (ROOT / "scripts" / "convert_openvla_lora_checkpoint.py").read_text()
+        self.assertIn("OmegaConf.to_container(value, resolve=True)", script)
+        self.assertIn("sanitize_transformers_config(model)", script)
+
     def test_gpu_launchers_require_verified_nvls_setting(self) -> None:
         for name in (
             "cluster_start.sh",
